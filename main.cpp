@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -5,13 +6,14 @@
 #include <vector>
 using std::cout;
 using std::ifstream;
+using std::sort;
 using std::istringstream;
 using std::string;
 using std::vector;
 using std::abs;
 
 //defining two possible state of any location (obstacle or empty)
-enum class State {kEmpty, kObstacle, kClosed}; 
+enum class State {kEmpty, kObstacle, kClosed, kPath}; 
 
 
 //function to read each line and returning states based on value of 0 and 1
@@ -44,21 +46,57 @@ vector<vector<State>> ReadBoardFile(string path) {
   return board;
 }
 
-//Heuristic function here,
+//comparing two nodes for its f=g+h values, true if first node is greater than the next one.
+bool Compare(vector<int>a, vector<int>b){
+  int f_a = a[2] + a[3];
+  int f_b = b[2] + b[3];
+  return f_a>f_b;
+}
+
+//sorting cell comparing f-score using cell sort - descending order
+void CellSort(vector<vector<int>> *v){
+  sort(v->begin(), v->end(), Compare);
+}
+
+//Heuristic function here (calculating manhattan distance),
 int Heuristic(int x1, int y1, int x2, int y2){
   return abs(x1-x2) + abs(y1-y2); //this heuristic is only for up/donw/l/r movements, for diagonal, we need pythagoras
 }
 
+// TODO: Write CheckValidCell here. Check that the 
+// cell is on the grid and not an obstacle (i.e. equals kEmpty).
+
+
 //Add to Open function here, to add nodes to array of open nodes
 //x,y coordinate and its g-cost till that cell and h-heuristic value.
-void AddToOpen(int x, int y, int g, int h, vector<vector<int>>&open_nodes,vector<vector<State>>&state_of_nodes) {
+void AddToOpen(int x, int y, int g, int h, vector<vector<int>> &open,vector<vector<State>> &grid) {
   vector<int> node{x,y,g,h};
-  open_nodes.push_back(node);
-  state_of_nodes[x][y] = State::kClosed;
+  open.push_back(node);
+  grid[x][y] = State::kClosed;
 }
 
-//Search function stub here. this will have board, start and goal of the maze
-vector<vector<State>> Search(vector<vector<State>> board,int init[2], int goal[2]){
+//Search function stub here. this will have grid, start and goal of the maze
+vector<vector<State>> Search(vector<vector<State>> grid,int init[2], int goal[2]){
+  int x = init[0]; //initial point - starting point as first open node
+  int y = init[1];
+  int g = 0;
+  int h = Heuristic(x,y,goal[0],goal[1]);
+
+  vector<vector<int>> open {};
+  AddToOpen(x,y,g,h,open,grid);  //adding first node as an open node
+
+  while(open.size()!=0){ //checking if the open vector is non empty
+    CellSort(&open); //getting current node from sorted open vector
+    vector<int> current_node = open.back(); //getting the current node from open vector list
+
+    int x1 = current_node[0]; //x and y coordinate of the current node
+    int y1 = current_node[1];
+    grid[x1][y1] = State::kPath; //adding that node to the path
+    if(x==goal[0] && y==goal[1]){  //checking if we have reached the goal
+      return grid;
+    }break; //ending the while loop now
+  }
+  
   cout<<"No path found!"<<"\n";
   return vector<vector<State>> {};  //returning an empty vector
 }
@@ -67,6 +105,7 @@ vector<vector<State>> Search(vector<vector<State>> board,int init[2], int goal[2
 string CellString(State cell) {    
   switch(cell) {
     case State::kObstacle: return "⛰️   ";
+    case State::kPath: return "🚗   ";
     default: return "0   "; 
   }
 }
