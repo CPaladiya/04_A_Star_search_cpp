@@ -10,10 +10,12 @@ using std::string;
 using std::vector;
 using std::abs;
 
-enum class State {kEmpty, kObstacle}; //defining two possible state of any location (obstacle or empty)
+//defining two possible state of any location (obstacle or empty)
+enum class State {kEmpty, kObstacle, kClosed}; 
 
 
-vector<State> ParseLine(string line) {   //function to read each line and returning states based on value of 0 and 1
+//function to read each line and returning states based on value of 0 and 1
+vector<State> ParseLine(string line) {   
     istringstream sline(line);
     int n;
     char c;
@@ -28,8 +30,8 @@ vector<State> ParseLine(string line) {   //function to read each line and return
     return row;
 }
 
-
-vector<vector<State>> ReadBoardFile(string path) {   //function to read line from the txt file given at some path
+//function to read line from the txt file given at some path
+vector<vector<State>> ReadBoardFile(string path) {   
   ifstream myfile (path);  //defining a stream named myfile with path given in the bracket
   vector<vector<State>> board{};
   if (myfile) {   //if the stream is created myfile will be true
@@ -47,22 +49,30 @@ int Heuristic(int x1, int y1, int x2, int y2){
   return abs(x1-x2) + abs(y1-y2); //this heuristic is only for up/donw/l/r movements, for diagonal, we need pythagoras
 }
 
-// TODO: Write the Search function stub here. this will have board, start and goal of the maze
+//Add to Open function here, to add nodes to array of open nodes
+//x,y coordinate and its g-cost till that cell and h-heuristic value.
+void AddToOpen(int x, int y, int g, int h, vector<vector<int>>&open_nodes,vector<vector<State>>&state_of_nodes) {
+  vector<int> node{x,y,g,h};
+  open_nodes.push_back(node);
+  state_of_nodes[x][y] = State::kClosed;
+}
+
+//Search function stub here. this will have board, start and goal of the maze
 vector<vector<State>> Search(vector<vector<State>> board,int init[2], int goal[2]){
   cout<<"No path found!"<<"\n";
   return vector<vector<State>> {};  //returning an empty vector
 }
 
-
-string CellString(State cell) {    //defining the string to be printed based on state of the position
+//defining the string to be printed based on state of the position
+string CellString(State cell) {    
   switch(cell) {
     case State::kObstacle: return "⛰️   ";
     default: return "0   "; 
   }
 }
 
-
-void PrintBoard(const vector<vector<State>> board) {  //loops to print the board - visual output
+//loops to print the board - visual output
+void PrintBoard(const vector<vector<State>> board) {  
   for (int i = 0; i < board.size(); i++) {
     for (int j = 0; j < board[i].size(); j++) {
       cout << CellString(board[i][j]);
