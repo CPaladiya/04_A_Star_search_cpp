@@ -10,10 +10,10 @@ using std::string;
 using std::vector;
 using std::abs;
 
-enum class State {kEmpty, kObstacle};
+enum class State {kEmpty, kObstacle}; //defining two possible state of any location (obstacle or empty)
 
 
-vector<State> ParseLine(string line) {
+vector<State> ParseLine(string line) {   //function to read each line and returning states based on value of 0 and 1
     istringstream sline(line);
     int n;
     char c;
@@ -29,12 +29,12 @@ vector<State> ParseLine(string line) {
 }
 
 
-vector<vector<State>> ReadBoardFile(string path) {
-  ifstream myfile (path);
+vector<vector<State>> ReadBoardFile(string path) {   //function to read line from the txt file given at some path
+  ifstream myfile (path);  //defining a stream named myfile with path given in the bracket
   vector<vector<State>> board{};
-  if (myfile) {
+  if (myfile) {   //if the stream is created myfile will be true
     string line;
-    while (getline(myfile, line)) {
+    while (getline(myfile, line)) { //getting line by line from the stream
       vector<State> row = ParseLine(line);
       board.push_back(row);
     }
@@ -42,10 +42,14 @@ vector<vector<State>> ReadBoardFile(string path) {
   return board;
 }
 
-// TODO: Write the Search function stub here.
+// TODO: Write the Search function stub here. this will have board, start and goal of the maze
+vector<vector<State>> Search(vector<vector<State>> board,int init[2], int goal[2]){
+  cout<<"No path found!"<<"\n";
+  return vector<vector<State>> {};  //returning an empty vector
+}
 
 
-string CellString(State cell) {
+string CellString(State cell) {    //defining the string to be printed based on state of the position
   switch(cell) {
     case State::kObstacle: return "⛰️   ";
     default: return "0   "; 
@@ -53,7 +57,7 @@ string CellString(State cell) {
 }
 
 
-void PrintBoard(const vector<vector<State>> board) {
+void PrintBoard(const vector<vector<State>> board) {  //loops to print the board - visual output
   for (int i = 0; i < board.size(); i++) {
     for (int j = 0; j < board[i].size(); j++) {
       cout << CellString(board[i][j]);
@@ -64,9 +68,9 @@ void PrintBoard(const vector<vector<State>> board) {
 
 
 int main() {
-  // TODO: Declare "init" and "goal" arrays with values {0, 0} and {4, 5} respectively.
-  auto board = ReadBoardFile("1.board");
-  // TODO: Call Search with "board", "init", and "goal". Store the results in the variable "solution".
-  // TODO: Change the following line to pass "solution" to PrintBoard.
-  PrintBoard(board);
+  int init[2] = {0,0}; //defining a start of the path
+  int goal[2] = {4,5}; //defining end of the path
+  auto board = ReadBoardFile("1.board"); //reading the maze from txt file
+  auto solution = Search(board,init,goal); //getting the solution of the maze
+  PrintBoard(solution); 
 }
