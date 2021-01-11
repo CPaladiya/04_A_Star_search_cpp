@@ -156,7 +156,7 @@ void PrintBoard(const vector<vector<State>> board) {
 int main() {
   int init[2] = {0,0}; //defining a start of the path
   int goal[2] = {4,5}; //defining end of the path
-  auto board = ReadBoardFile("1.board"); //reading the maze from txt file
+  auto board = ReadBoardFile("C:/Users/chira/Desktop/Temp/1.board.txt"); //reading the maze from txt file
   auto solution = Search(board,init,goal); //getting the solution of the maze
   PrintBoard(solution); 
 }
