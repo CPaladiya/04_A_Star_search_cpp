@@ -14,6 +14,7 @@ using std::abs;
 
 //defining two possible state of any location (obstacle or empty)
 enum class State {kEmpty, kObstacle, kClosed, kPath}; 
+const int delta[4][2]{{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 
 
 //function to read each line and returning states based on value of 0 and 1
@@ -64,8 +65,14 @@ int Heuristic(int x1, int y1, int x2, int y2){
 }
 
 // TODO: Write CheckValidCell here. Check that the 
-// cell is on the grid and not an obstacle (i.e. equals kEmpty).
-
+// cell is on the grid and not an obstacle (i.e. equals kEmpty).returns true if the cell is empty and on the grid
+bool CheckValidCell(int x, int y, vector<vector<State>> &grid){
+  bool x_bool = x>=0 && x<=grid.size();
+  bool y_bool = y>=0 && y<=grid[0].size();
+  if(x_bool && y_bool){
+      return  grid[x][y] == State::kEmpty;
+  }
+}
 
 //Add to Open function here, to add nodes to array of open nodes
 //x,y coordinate and its g-cost till that cell and h-heuristic value.
@@ -73,6 +80,24 @@ void AddToOpen(int x, int y, int g, int h, vector<vector<int>> &open,vector<vect
   vector<int> node{x,y,g,h};
   open.push_back(node);
   grid[x][y] = State::kClosed;
+}
+
+//expand current nodes to neighbours and add them to the open list
+void ExapndNeighbors(vector<int> &current_node, int goal[2], vector<vector<int>> &open, vector<vector<State>>&grid){
+  int x = current_node[0]; //getting the current node data
+  int y = current_node[1];
+  
+  //getting info on neighbors using directional deltas
+  for (int i = 0; i < 4; i++) {
+    int x_n = x + delta[i][0];
+    int y_n = y + delta[i][1];
+    //checking if the neighbor is valid
+    if (CheckValidCell(x_n,y_n,grid)){
+      int new_g = current_node[2] + 1;
+      int new_h = Heuristic(x_n,y_n,goal[0],goal[1]);
+      AddToOpen(x_n,y_n,new_g,new_h,open,grid);
+    }
+  }
 }
 
 //Search function stub here. this will have grid, start and goal of the maze
@@ -85,16 +110,18 @@ vector<vector<State>> Search(vector<vector<State>> grid,int init[2], int goal[2]
   vector<vector<int>> open {};
   AddToOpen(x,y,g,h,open,grid);  //adding first node as an open node
 
-  while(open.size()!=0){ //checking if the open vector is non empty
+  while(open.size()>0){ //checking if the open vector is non empty
     CellSort(&open); //getting current node from sorted open vector
     vector<int> current_node = open.back(); //getting the current node from open vector list
+    open.pop_back();//removing the last node from open node
 
-    int x1 = current_node[0]; //x and y coordinate of the current node
-    int y1 = current_node[1];
-    grid[x1][y1] = State::kPath; //adding that node to the path
+    x = current_node[0]; //x and y coordinate of the current node
+    y = current_node[1];
+    grid[x][y] = State::kPath; //adding that node to the path
     if(x==goal[0] && y==goal[1]){  //checking if we have reached the goal
       return grid;
-    }break; //ending the while loop now
+    }
+    ExapndNeighbors(current_node,goal,open,grid);
   }
   
   cout<<"No path found!"<<"\n";
