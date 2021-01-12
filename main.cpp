@@ -134,10 +134,10 @@ vector<vector<State>> Search(vector<vector<State>> grid,int init[2], int goal[2]
 //defining the string to be printed based on state of the position
 string CellString(State cell) {    
   switch(cell) {
-    case State::kObstacle: return "⛰️   ";
-    case State::kPath: return "🚗   ";
-    case State::kStart : return "🚦   ";
-    case State::kFinish : return "🏁   ";
+    case State::kObstacle: return "|||||"; //"⛰️   "
+    case State::kPath: return "  -  "; //"🚗   "
+    case State::kStart : return "!G!O!"; //"🚦   "
+    case State::kFinish : return "!WOW!"; //"🏁   "
     default: return "0   "; 
   }
 }
@@ -159,4 +159,5 @@ int main() {
   auto board = ReadBoardFile("C:/Users/chira/Desktop/Temp/1.board.txt"); //reading the maze from txt file
   auto solution = Search(board,init,goal); //getting the solution of the maze
   PrintBoard(solution); 
+  return 0;
 }
