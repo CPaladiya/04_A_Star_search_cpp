@@ -134,11 +134,11 @@ vector<vector<State>> Search(vector<vector<State>> grid,int init[2], int goal[2]
 //defining the string to be printed based on state of the position
 string CellString(State cell) {    
   switch(cell) {
-    case State::kObstacle: return "|||||"; //"⛰️   "
-    case State::kPath: return "  -  "; //"🚗   "
+    case State::kObstacle: return "|###|"; //"⛰️   "
+    case State::kPath: return "====="; //"🚗   "
     case State::kStart : return "!G!O!"; //"🚦   "
     case State::kFinish : return "!WOW!"; //"🏁   "
-    default: return "0   "; 
+    default: return "  -  "; 
   }
 }
 
