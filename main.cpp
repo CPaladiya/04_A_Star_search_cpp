@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <math.h>
 using std::cout;
 using std::ifstream;
 using std::sort;
@@ -14,7 +15,7 @@ using std::abs;
 
 //defining two possible state of any location (obstacle or empty)
 enum class State {kStart, kFinish, kEmpty, kObstacle, kClosed, kPath}; 
-const int delta[4][2]{{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
+const float delta[8][2]{{-1, 0}, {0, -1}, {1, 0}, {0, 1}, {1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
 
 
 //function to read each line and returning states based on value of 0 and 1
@@ -48,75 +49,75 @@ vector<vector<State>> ReadBoardFile(string path) {
 }
 
 //comparing two nodes for its f=g+h values, true if first node is greater than the next one.
-bool Compare(vector<int>a, vector<int>b){
+bool Compare(vector<float>a, vector<float>b){
   int f_a = a[2] + a[3];
   int f_b = b[2] + b[3];
   return f_a>f_b;
 }
 
 //sorting cell comparing f-score using cell sort - descending order
-void CellSort(vector<vector<int>> *v){
+void CellSort(vector<vector<float>> *v){
   sort(v->begin(), v->end(), Compare);
 }
 
 //Heuristic function here (calculating manhattan distance),
-int Heuristic(int x1, int y1, int x2, int y2){
-  return abs(x1-x2) + abs(y1-y2); //this heuristic is only for up/donw/l/r movements, for diagonal, we need pythagoras
+int Heuristic(float x1, float y1, float x2, float y2){
+  return sqrt(pow(x1-x2,2.0) + pow(y1-y2,2.0)); //this heuristic is only for up/donw/l/r movements, for diagonal, we need pythagoras
 }
 
 // TODO: Write CheckValidCell here. Check that the 
 // cell is on the grid and not an obstacle (i.e. equals kEmpty).returns true if the cell is empty and on the grid
-bool CheckValidCell(int x, int y, vector<vector<State>> &grid){
+bool CheckValidCell(float x, float y, vector<vector<State>> &grid){
   bool x_bool = (x>=0 && x<grid.size());
   bool y_bool = (y>=0 && y<grid[0].size());
-  if(x_bool && y_bool)
+  if(x_bool && y_bool && grid[x][y] != State::kClosed) 
       return  grid[x][y] == State::kEmpty;
   return false;
 }
 
 //Add to Open function here, to add nodes to array of open nodes
 //x,y coordinate and its g-cost till that cell and h-heuristic value.
-void AddToOpen(int x, int y, int g, int h, vector<vector<int>> &open,vector<vector<State>> &grid) {
-  vector<int> node{x,y,g,h};
+void AddToOpen(float x, float y, float g, float h, vector<vector<float>> &open,vector<vector<State>> &grid) {
+  vector<float> node{x,y,g,h};
   open.push_back(node);
   grid[x][y] = State::kClosed;
 }
 
 //expand current nodes to neighbours and add them to the open list
-void ExpadNeighbors(vector<int> &current_node, int goal[2], vector<vector<int>> &open, vector<vector<State>>&grid){
-  int x = current_node[0]; //getting the current node data
-  int y = current_node[1];
+void ExpadNeighbors(vector<float> &current_node, float goal[2], vector<vector<float>> &open, vector<vector<State>>&grid){
+  float x = current_node[0]; //getting the current node data
+  float y = current_node[1];
   
   //getting info on neighbors using directional deltas
-  for (int i = 0; i < 4; i++) {
-    int x_n = x + delta[i][0];
-    int y_n = y + delta[i][1];
+  for (int i = 0; i < 8; i++) {
+    float x_n = x + delta[i][0];
+    float y_n = y + delta[i][1];
     //checking if the neighbor is valid
     if (CheckValidCell(x_n,y_n,grid)){
-      int new_g = current_node[2] + 1;
-      int new_h = Heuristic(x_n,y_n,goal[0],goal[1]);
+      float new_g = current_node[2] + Heuristic(current_node[0],current_node[1],x_n,y_n);
+      float new_h = Heuristic(x_n,y_n,goal[0],goal[1]);
       AddToOpen(x_n,y_n,new_g,new_h,open,grid);
     }
   }
 }
 
 //Search function stub here. this will have grid, start and goal of the maze
-vector<vector<State>> Search(vector<vector<State>> grid,int init[2], int goal[2]){
-  int x1 = init[0]; //initial point - starting point as first open node
-  int y1 = init[1];
-  int g = 0;
-  int h = Heuristic(x1,y1,goal[0],goal[1]);
+vector<vector<State>> Search(vector<vector<State>> grid,float init[2], float goal[2]){
+  float x1 = init[0]; //initial point - starting point as first open node
+  float y1 = init[1];
+  float g = 0;
+  float h = Heuristic(x1,y1,goal[0],goal[1]);
 
-  vector<vector<int>> open {};
+  vector<vector<float>> open {};
   AddToOpen(x1,y1,g,h,open,grid);  //adding first node as an open node
 
   while(open.size()>0){ //checking if the open vector is non empty
     CellSort(&open); //getting current node from sorted open vector
-    vector<int> current_node = open.back(); //getting the current node from open vector list
+    vector<float> current_node = open.back(); //getting the current node from open vector list
     open.pop_back();//removing the last node from open node
 
-    int x = current_node[0]; //x and y coordinate of the current node
-    int y = current_node[1];
+    float x = current_node[0]; //x and y coordinate of the current node
+    float y = current_node[1];
     grid[x][y] = State::kPath; //adding that node to the path
     if(x==goal[0] && y==goal[1]){  //checking if we have reached the goal
       grid[x1][y1] = State::kStart;
@@ -154,8 +155,8 @@ void PrintBoard(const vector<vector<State>> board) {
 
 
 int main() {
-  int init[2] = {0,0}; //defining a start of the path
-  int goal[2] = {4,5}; //defining end of the path
+  float init[2] = {0,0}; //defining a start of the path
+  float goal[2] = {4,5}; //defining end of the path
   auto board = ReadBoardFile("C:/Users/chira/Desktop/Temp/1.board.txt"); //reading the maze from txt file
   auto solution = Search(board,init,goal); //getting the solution of the maze
   PrintBoard(solution); 
