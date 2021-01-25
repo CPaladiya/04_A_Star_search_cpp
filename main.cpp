@@ -50,8 +50,8 @@ vector<vector<State>> ReadBoardFile(string path) {
 
 //comparing two nodes for its f=g+h values, true if first node is greater than the next one.
 bool Compare(vector<float>a, vector<float>b){
-  int f_a = a[2] + a[3];
-  int f_b = b[2] + b[3];
+  float f_a = a[2] + a[3];
+  float f_b = b[2] + b[3];
   return f_a>f_b;
 }
 
@@ -61,8 +61,8 @@ void CellSort(vector<vector<float>> *v){
 }
 
 //Heuristic function here (calculating manhattan distance),
-int Heuristic(float x1, float y1, float x2, float y2){
-  return sqrt(pow(x1-x2,2.0) + pow(y1-y2,2.0)); //this heuristic is only for up/donw/l/r movements, for diagonal, we need pythagoras
+float Heuristic(float x1, float y1, float x2, float y2){
+  return sqrt(pow(abs(x1-x2),2.0) + pow(abs(y1-y2),2.0)); //this heuristic is only for up/donw/l/r movements, for diagonal, we need pythagoras
 }
 
 // TODO: Write CheckValidCell here. Check that the 
@@ -70,7 +70,7 @@ int Heuristic(float x1, float y1, float x2, float y2){
 bool CheckValidCell(float x, float y, vector<vector<State>> &grid){
   bool x_bool = (x>=0 && x<grid.size());
   bool y_bool = (y>=0 && y<grid[0].size());
-  if(x_bool && y_bool && grid[x][y] != State::kClosed) 
+  if(x_bool && y_bool) //&& grid[x][y] != State::kClosed
       return  grid[x][y] == State::kEmpty;
   return false;
 }
@@ -94,8 +94,11 @@ void ExpadNeighbors(vector<float> &current_node, float goal[2], vector<vector<fl
     float y_n = y + delta[i][1];
     //checking if the neighbor is valid
     if (CheckValidCell(x_n,y_n,grid)){
-      float new_g = current_node[2] + Heuristic(current_node[0],current_node[1],x_n,y_n);
+      float new_g = current_node[2] + 1; //Heuristic(current_node[0],current_node[1],x_n,y_n)
       float new_h = Heuristic(x_n,y_n,goal[0],goal[1]);
+      float total = new_g+new_h;
+      //cout<< "Grid : " << x << " " << y << " neighbor : " << x_n << " "<< y_n<< "\n";  
+      //cout << "Total " << total << " new_g " << new_g << " new_h " << new_h << "\n";
       AddToOpen(x_n,y_n,new_g,new_h,open,grid);
     }
   }
@@ -119,6 +122,7 @@ vector<vector<State>> Search(vector<vector<State>> grid,float init[2], float goa
     float x = current_node[0]; //x and y coordinate of the current node
     float y = current_node[1];
     grid[x][y] = State::kPath; //adding that node to the path
+    //cout << "setting path here " << x << " " << y << "\n";
     if(x==goal[0] && y==goal[1]){  //checking if we have reached the goal
       grid[x1][y1] = State::kStart;
       grid[x][y] = State::kFinish;
@@ -135,10 +139,10 @@ vector<vector<State>> Search(vector<vector<State>> grid,float init[2], float goa
 //defining the string to be printed based on state of the position
 string CellString(State cell) {    
   switch(cell) {
-    case State::kObstacle: return " XXXX "; //"⛰️   "
-    case State::kPath: return "   GO   "; //"🚗   "
-    case State::kStart : return " !START! "; //"🚦   "
-    case State::kFinish : return " @@@@@ "; //"🏁   "
+    case State::kObstacle: return " XXXX "; //"⛰️   " " XXXX "
+    case State::kPath: return "   GO   "; //"🚗   " "   GO   "
+    case State::kStart : return " !START! "; //"🚦   " " !START! "
+    case State::kFinish : return " @@@@@ "; //"🏁   " " @@@@@ "
     default: return " _    _ "; 
   }
 }
@@ -156,8 +160,8 @@ void PrintBoard(const vector<vector<State>> board) {
 
 int main() {
   float init[2] = {0,0}; //defining a start of the path
-  float goal[2] = {4,5}; //defining end of the path
-  auto board = ReadBoardFile("C:/Users/chira/Desktop/Temp/1.board.txt"); //reading the maze from txt file
+  float goal[2] = {2,11}; //defining end of the path
+  auto board = ReadBoardFile("C:/Users/chira/Google Drive/Prog_projects/04_A_Star_search_cpp/1.board.txt"); //reading the maze from txt file
   auto solution = Search(board,init,goal); //getting the solution of the maze
   PrintBoard(solution); 
   return 0;
