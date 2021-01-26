@@ -3,7 +3,7 @@ Showcase : Implementation of A-Star Search Algorithm for 2D (X,Y) grid
 
 ## Print board input file
 Setting up obstacles and free space within the grid
-- referring to file `1.board.txt`
+- Referring to file `1.board.txt`
 
 ![Grid](https://user-images.githubusercontent.com/74514429/105792908-2f47e880-5f56-11eb-90fe-b3243baf6de2.png)
 
