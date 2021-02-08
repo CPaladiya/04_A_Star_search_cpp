@@ -139,10 +139,10 @@ vector<vector<State>> Search(vector<vector<State>> grid,float init[2], float goa
 //defining the string to be printed based on state of the position
 string CellString(State cell) {    
   switch(cell) {
-    case State::kObstacle: return "XXXXX"; //"⛰️   " " XXXX "
-    case State::kPath: return "___GO___"; //"🚗   " "   GO   "
-    case State::kStart : return "!START! "; //"🚦   " " !START! "
-    case State::kFinish : return "!!HOME!!"; //"🏁   " " @@@@@ "
+    case State::kObstacle: return "⛰️   "; //"⛰️   " "XXXXX"
+    case State::kPath: return "🚗   "; //"🚗   " "___GO___"
+    case State::kStart : return "🚦   " ;//"🚦   " "!START! "
+    case State::kFinish : return "🏁   "; //"🏁   " "!!HOME!!"
     default: return " _   _ "; 
   }
 }
@@ -161,7 +161,7 @@ void PrintBoard(const vector<vector<State>> board) {
 int main() {
   float init[2] = {0,0}; //defining a start of the path
   float goal[2] = {0,11}; //defining end of the path
-  auto board = ReadBoardFile("C:/Users/chira/Google Drive/Prog_projects/04_A_Star_search_cpp/1.board.txt"); //reading the maze from txt file
+  auto board = ReadBoardFile("1.board.txt"); //reading the maze from txt file
   auto solution = Search(board,init,goal); //getting the solution of the maze
   PrintBoard(solution); 
   return 0;
